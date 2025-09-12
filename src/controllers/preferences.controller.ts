@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { UserPreferences } from "src/types/preferences";
 
-const preferences = new Map<string, UserPreferences>();
+export const preferences = new Map<string, UserPreferences>();
 
 preferences.set("user1", {
   dnd: { start: "22:00", end: "07:00" },

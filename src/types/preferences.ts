@@ -9,5 +9,5 @@ export interface DND {
 
 export interface UserPreferences {
   dnd?: DND;
-  eventSettings?: Record<string, EventSetting>;
+  eventSettings: Record<string, EventSetting>;
 }
