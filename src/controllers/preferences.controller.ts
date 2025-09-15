@@ -1,5 +1,5 @@
 import { Express } from "express";
-import { UserPreferences } from "src/types/preferences";
+import { UserPreferences } from "../types/preferences";
 
 export const preferences = new Map<string, UserPreferences>();
 
