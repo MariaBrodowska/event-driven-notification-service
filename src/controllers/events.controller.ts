@@ -6,6 +6,24 @@ import { inDND } from "../utils/dndChecker";
 export const eventsControllerFactory = (app: Express) => {
   app.post("/events", (req, res) => {
     const event: Event = req.body;
+
+    if (!event.eventId || !event.userId || !event.eventType || !event.timestamp)
+      return res.status(400).send({
+        message: "eventId, userId, eventType and timestamp are required",
+      });
+
+    const timestamp = new Date(event.timestamp);
+    if (isNaN(timestamp.getTime()))
+      return res.status(400).send({
+        message: "timestamp must be a valid date format",
+      });
+
+    const now = new Date();
+    if (timestamp > now)
+      return res.status(400).send({
+        message: "timestamp cannot be in the future",
+      });
+
     const userPrefs = preferences.get(event.userId);
 
     if (!userPrefs)

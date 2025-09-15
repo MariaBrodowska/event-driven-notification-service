@@ -46,6 +46,17 @@ export const preferencesControllerFactory = (app: Express) => {
         invoice_generated: { enabled: true },
       };
 
+    if (userPrefs.dnd) {
+      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      if (
+        !timeRegex.test(userPrefs.dnd.start) ||
+        !timeRegex.test(userPrefs.dnd.end)
+      )
+        return res.status(400).send({
+          message: "DND must be a valid HH:MM format",
+        });
+    }
+
     preferences.set(userId, userPrefs);
 
     console.log(`Preferences for user ${req.params.userId} updated`, req.body);
