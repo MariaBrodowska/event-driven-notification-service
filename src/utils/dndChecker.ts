@@ -18,7 +18,6 @@ export function inDND(timestamp: string, dnd?: DND): boolean {
   if (startMinutes < endMinutes) {
     return eventMinutes >= startMinutes && eventMinutes < endMinutes;
   } else {
-    //cross midnight
     return eventMinutes >= startMinutes || eventMinutes < endMinutes;
   }
 }

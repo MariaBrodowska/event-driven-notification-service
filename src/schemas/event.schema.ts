@@ -10,8 +10,8 @@ export const eventSchema = z.object({
   timestamp: z
     .string()
     .refine(
-      (val) => {
-        const date = new Date(val);
+      (timestamp) => {
+        const date = new Date(timestamp);
         return !isNaN(date.getTime());
       },
       {
@@ -19,8 +19,8 @@ export const eventSchema = z.object({
       }
     )
     .refine(
-      (val) => {
-        const date = new Date(val);
+      (timestamp) => {
+        const date = new Date(timestamp);
         const now = new Date();
         return date <= now;
       },

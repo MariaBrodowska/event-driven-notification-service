@@ -49,16 +49,6 @@ export const preferencesControllerFactory = (app: Express) => {
       //     .status(400)
       //     .json({ message: "Preferences data is required" });
 
-      // if (userPrefs.eventSettings) {
-      //   const allowedEventTypes = Object.values(EventType);
-      //   for (const eventType in userPrefs.eventSettings) {
-      //     if (!allowedEventTypes.includes(eventType as EventType))
-      //       return res.status(400).json({
-      //         message: `Unknown event type: ${eventType}. Allowed types: ${allowedEventTypes.join(", ")}`,
-      //       });
-      //   }
-      // }
-
       // if (userPrefs.dnd) {
       //   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
       //   if (
@@ -70,13 +60,21 @@ export const preferencesControllerFactory = (app: Express) => {
       //     });
       // }
 
-      if (!userPrefs.eventSettings) {
-        userPrefs.eventSettings = {};
-      }
+      if (userPrefs.eventSettings) {
+        const allowedEventTypes = Object.values(EventType);
+        for (const eventType in userPrefs.eventSettings) {
+          if (!allowedEventTypes.includes(eventType as EventType))
+            return res.status(400).json({
+              message: `Unknown event type: ${eventType}. Allowed types: ${allowedEventTypes.join(", ")}`,
+            });
+        }
+      } else userPrefs.eventSettings = {};
+
       const defaultEventSettings = {
         [EventType.ITEM_SHIPPED]: { enabled: true },
         [EventType.INVOICE_GENERATED]: { enabled: true },
       };
+
       for (const [eventType, defaultSetting] of Object.entries(
         defaultEventSettings
       )) {
