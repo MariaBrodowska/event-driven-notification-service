@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 const timeFormat = z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
   message: "Time must be in HH:MM 24h format",
@@ -15,9 +15,9 @@ const eventSettingSchema = z.object({
 
 const eventSettingsSchema = z.record(z.string(), eventSettingSchema);
 
-const preferencesSchema = z.object({
+export const preferencesSchema = z.object({
   dnd: dndSchema.optional(),
-  eventSettings: eventSettingsSchema,
+  eventSettings: eventSettingsSchema.optional(),
 });
 
 export type PreferencesSchema = z.infer<typeof preferencesSchema>;

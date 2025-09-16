@@ -4,8 +4,7 @@ import { EventType } from "../types/eventTypes";
 export const eventSchema = z.object({
   eventId: z.string().min(1, "eventId is required"),
   userId: z.string().min(1, "userId is required"),
-  eventType: z.enum([EventType.ITEM_SHIPPED, EventType.INVOICE_GENERATED]),
-  errorMap: () => ({
+  eventType: z.enum([EventType.ITEM_SHIPPED, EventType.INVOICE_GENERATED], {
     message: "eventType must be 'item_shipped' or 'invoice_generated'",
   }),
   timestamp: z

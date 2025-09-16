@@ -1,6 +1,8 @@
 import { Express } from "express";
 import { UserPreferences } from "../types/preferences";
 import { EventType } from "../types/eventTypes";
+import { validateBody } from "../middleware/validation";
+import { preferencesSchema } from "../schemas/preferences.schema";
 
 export const preferences = new Map<string, UserPreferences>();
 
@@ -34,55 +36,73 @@ export const preferencesControllerFactory = (app: Express) => {
     res.status(200).json(userPrefs);
   });
 
-  app.post("/preferences/:userId", (req, res) => {
-    const userId = req.params.userId;
-    const userPrefs: UserPreferences = req.body;
+  app.post(
+    "/preferences/:userId",
+    validateBody(preferencesSchema),
+    (req, res) => {
+      const userId = req.params.userId;
+      const userPrefs: UserPreferences = req.body;
 
-    if (!userPrefs || Object.keys(userPrefs).length === 0)
-      return res.status(400).json({ message: "Preferences data is required" });
+      //Manual validation
+      // if (!userPrefs || Object.keys(userPrefs).length === 0)
+      //   return res
+      //     .status(400)
+      //     .json({ message: "Preferences data is required" });
 
-    if (userPrefs.eventSettings) {
-      const allowedEventTypes = Object.values(EventType);
-      for (const eventType in userPrefs.eventSettings) {
-        if (!allowedEventTypes.includes(eventType as EventType))
-          return res.status(400).json({
-            message: `Unknown event type: ${eventType}. Allowed types: ${allowedEventTypes.join(", ")}`,
-          });
+      // if (userPrefs.eventSettings) {
+      //   const allowedEventTypes = Object.values(EventType);
+      //   for (const eventType in userPrefs.eventSettings) {
+      //     if (!allowedEventTypes.includes(eventType as EventType))
+      //       return res.status(400).json({
+      //         message: `Unknown event type: ${eventType}. Allowed types: ${allowedEventTypes.join(", ")}`,
+      //       });
+      //   }
+      // }
+
+      // if (userPrefs.dnd) {
+      //   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      //   if (
+      //     !timeRegex.test(userPrefs.dnd.start) ||
+      //     !timeRegex.test(userPrefs.dnd.end)
+      //   )
+      //     return res.status(400).json({
+      //       message: "DND must be a valid HH:MM format",
+      //     });
+      // }
+
+      if (!userPrefs.eventSettings) {
+        userPrefs.eventSettings = {};
       }
-    } else
-      userPrefs.eventSettings = {
+      const defaultEventSettings = {
         [EventType.ITEM_SHIPPED]: { enabled: true },
         [EventType.INVOICE_GENERATED]: { enabled: true },
       };
+      for (const [eventType, defaultSetting] of Object.entries(
+        defaultEventSettings
+      )) {
+        if (!(eventType in userPrefs.eventSettings)) {
+          userPrefs.eventSettings[eventType] = defaultSetting;
+        }
+      }
 
-    if (userPrefs.dnd) {
-      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-      if (
-        !timeRegex.test(userPrefs.dnd.start) ||
-        !timeRegex.test(userPrefs.dnd.end)
-      )
-        return res.status(400).json({
-          message: "DND must be a valid HH:MM format",
-        });
+      const exists = preferences.has(userId);
+      preferences.set(userId, userPrefs);
+
+      console.log(
+        `Preferences for user ${userId} ${exists ? "updated" : "created"}`,
+        req.body
+      );
+
+      if (exists)
+        return res
+          .status(200)
+          .json({ message: "Preferences updated", preferences: userPrefs });
+
+      res
+        .status(201)
+        .json({ message: "Preferences created", preferences: userPrefs });
     }
-
-    const exists = preferences.has(userId);
-    preferences.set(userId, userPrefs);
-
-    console.log(
-      `Preferences for user ${userId} ${exists ? "updated" : "created"}`,
-      req.body
-    );
-
-    if (exists)
-      return res
-        .status(200)
-        .json({ message: "Preferences updated", preferences: userPrefs });
-
-    res
-      .status(201)
-      .json({ message: "Preferences created", preferences: userPrefs });
-  });
+  );
 
   app.delete("/preferences/:userId", (req, res) => {
     const userId = req.params.userId;
