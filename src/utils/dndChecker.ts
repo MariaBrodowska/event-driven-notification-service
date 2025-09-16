@@ -13,6 +13,8 @@ export function inDND(timestamp: string, dnd?: DND): boolean {
   const startMinutes = startHour * 60 + startMinute;
   const endMinutes = endHour * 60 + endMinute;
 
+  if (startMinutes === endMinutes) return false;
+
   if (startMinutes < endMinutes) {
     return eventMinutes >= startMinutes && eventMinutes < endMinutes;
   } else {
